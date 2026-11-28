@@ -306,8 +306,105 @@ class checked(BaseModel):
 checkes = checked()
 print(checkes)
 
+print("_"*30)
+from datetime import datetime, UTC
+import time
+class Badexample(BaseModel):
+    created_dt : datetime =datetime.now(UTC)
 
-print("\  \ "*20)
+b = Badexample()
+time.sleep(2)
+b1 = Badexample()
+
+print(b)
+print(b1)
+
+
+print("->"*20)
+from uuid import UUID , uuid4
+from datetime import datetime, UTC
+from pydantic import BaseModel , Field
+import time 
+
+class Goodexample(BaseModel):
+    request_id : UUID = Field(default_factory = uuid4)
+    created_id : datetime = Field(default_factory =lambda : datetime.now(UTC))
+
+k1=Goodexample()
+time.sleep(2)
+k2=Goodexample()
+
+print(k1)
+print(k2)
+
+print(k1.created_id == k2.created_id) # it always False
+
+print("<-"*20)
+
+#example in real life for chatbot
+
+from datetime import datetime, UTC
+from pydantic import BaseModel,Field
+from uuid import UUID ,uuid4
+
+class chatbot(BaseModel):
+    #required
+    promt : str
+    #optional defaults 
+    model : str = "gpt-4o-mini"
+    tempratuer : float | None = None
+    token : int | None = None  #None = let provide model
+    #default
+    system_prompt : str | None = None
+    stop_sequence : list[str] = Field(default_factory=list)
+    #auto genrated meta data request
+    created_dt : UUID =Field(default_factory=uuid4)
+    requested_dt : datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+req=chatbot(promt="expalin python")
+print(req)
+
+req.stop_sequence.append("Hello World!")
+print(req)
+
+print("-|-"*10)
+from pydantic import BaseModel,Field
+
+class prompt(BaseModel):
+    text : str = Field(description="text value")
+    user_id : str = Field(...,description='user_id is mendatory')#... means mendatory you will give value at the object created
+    value : str | None = Field(default=None , description="value wil given")
+
+print(prompt(text="sank",user_id = "abs"))
+# print(prompt(user_id="asc",value="mno"))
+
+print(prompt(text = "kolte",user_id="abc",value="xyz"))
+
+print("~"*20)
+
+# how to validate default value
+class validate(BaseModel):
+    age : int =  Field(default="abc" , validate_default=True)
+
+try:
+    s=validate()
+    print(s.age)
+except ValidationError as e:
+    print(e.errors()[0]["msg"])
+
+print(" >>>"*30)
+
+#dyanamically validate data
+
+class modeldata(BaseModel):
+    model_name : str
+    version : int = 1
+    attribute_val : str = Field(default_factory=lambda x:f"{x["model_name"]}:{x["version"]}")
+
+a=modeldata(model_name="gpt")
+print(a)
+
+print("\\ "*20)
 '''"""
 Create an ExperimentRun(BaseModel) for an ML training tracker with:
 
@@ -340,3 +437,4 @@ print(run1)
 print(run2)
 
 print(run1.run_id != run2.run_id)
+print("-"*30)
